@@ -15,6 +15,11 @@ def home():
     return render_template("index.html")
 
 
+@app.route("/game")
+def game():
+    return render_template("game.html")
+
+
 def start():
     app.run(
         host="0.0.0.0",
