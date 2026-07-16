@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Four — Choose your opponent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <section class="screen menu-screen">
+        <div class="menu-card">
+            <h1 class="title">CONNECT<span class="title-four">4</span></h1>
+            <p class="subtitle">Choose your opponent</p>
+
+            <div class="opponent-list">
+                <a class="opponent-btn" href="/game?mode=pvp">
+                    <span class="opp-icon">👥</span>
+                    <span class="opp-info">
+                        <span class="opp-name">Player vs Player</span>
+                        <span class="opp-desc">Local duel — for testing &amp; fun</span>
+                    </span>
+                </a>
+                <a class="opponent-btn" href="/game?mode=ai&ai=random">
+                    <span class="opp-icon">🎲</span>
+                    <span class="opp-info">
+                        <span class="opp-name">Randy the Random</span>
+                        <span class="opp-desc">Plays completely at random</span>
+                    </span>
+                </a>
+                <a class="opponent-btn" href="/game?mode=ai&ai=minimax">
+                    <span class="opp-icon">🧠</span>
+                    <span class="opp-info">
+                        <span class="opp-name">Minimax</span>
+                        <span class="opp-desc">Classic search algorithm</span>
+                    </span>
+                </a>
+                <a class="opponent-btn" href="/game?mode=ai&ai=neural">
+                    <span class="opp-icon">🤖</span>
+                    <span class="opp-info">
+                        <span class="opp-name">Neural Net</span>
+                        <span class="opp-desc">Trained model — the real deal</span>
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <div class="floating-discs" aria-hidden="true">
+            <div class="f-disc red" style="left:8%;  animation-delay:0s"></div>
+            <div class="f-disc yellow" style="left:22%; animation-delay:3s"></div>
+            <div class="f-disc red" style="left:78%; animation-delay:1.5s"></div>
+            <div class="f-disc yellow" style="left:90%; animation-delay:4.5s"></div>
+        </div>
+    </section>
+
+</body>
+</html>
