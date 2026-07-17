@@ -1,4 +1,4 @@
-from Piece import Piece
+from .Piece import Piece
 
 
 class Board:
@@ -10,10 +10,12 @@ class Board:
     - Columns: 0 (left) to 6 (right).
     """
 
+    ROWS: int = 6
+    COLUMNS: int = 7
+
     def __init__(self):
-        self.rows: int = 6
-        self.columns: int = 7
-        self.grid: list[list[Piece | None]] = [[None for _ in range(self.columns)] for _ in range(self.rows)]
+        self.current_player: int = 0
+        self.grid: list[list[Piece | None]] = [[None for _ in range(self.COLUMNS)] for _ in range(self.ROWS)]
 
     def display(self):
         """Display the board."""
@@ -40,12 +42,13 @@ class Board:
         The piece falls from the top to the lowest available position.
         """
 
-        if column < 0 or column >= self.columns:
+        if column < 0 or column >= self.COLUMNS:
             return False
 
-        for row in range(self.rows - 1, -1, -1):
+        for row in range(self.ROWS - 1, -1, -1):
             if self.grid[row][column] is None:
                 self.grid[row][column] = piece
+                self.current_player = (self.current_player + 1) % 2
                 return True
 
         return False
@@ -53,7 +56,7 @@ class Board:
     def is_full(self) -> bool:
         """Check if the board is full."""
 
-        for column in range(self.columns):
+        for column in range(self.COLUMNS):
             if self.grid[0][column] is None:
                 return False
 
@@ -67,8 +70,8 @@ class Board:
         color: str = piece.get_color()
 
         # Horizontal
-        for row in range(self.rows):
-            for col in range(self.columns - 3):
+        for row in range(self.ROWS):
+            for col in range(self.COLUMNS - 3):
                 if all(
                     self.grid[row][col + i] is not None
                     and self.grid[row][col + i].get_color() == color
@@ -77,8 +80,8 @@ class Board:
                     return True
 
         # Vertical
-        for row in range(self.rows - 3):
-            for col in range(self.columns):
+        for row in range(self.ROWS - 3):
+            for col in range(self.COLUMNS):
                 if all(
                     self.grid[row + i][col] is not None
                     and self.grid[row + i][col].get_color() == color
@@ -87,8 +90,8 @@ class Board:
                     return True
 
         # Diagonal \
-        for row in range(self.rows - 3):
-            for col in range(self.columns - 3):
+        for row in range(self.ROWS - 3):
+            for col in range(self.COLUMNS - 3):
                 if all(
                     self.grid[row + i][col + i] is not None
                     and self.grid[row + i][col + i].get_color() == color
@@ -97,8 +100,8 @@ class Board:
                     return True
 
         # Diagonal /
-        for row in range(3, self.rows):
-            for col in range(self.columns - 3):
+        for row in range(3, self.ROWS):
+            for col in range(self.COLUMNS - 3):
                 if all(
                     self.grid[row - i][col + i] is not None
                     and self.grid[row - i][col + i].get_color() == color
@@ -107,3 +110,38 @@ class Board:
                     return True
 
         return False
+    
+    def column_is_full(self, column: int) -> bool:
+        """
+        Check if a column is full.
+        """
+
+        if column < 0 or column >= self.COLUMNS:
+            raise ValueError("Column index out of bounds.")
+
+        return self.grid[0][column] is not None
+    
+    def to_dict(self):
+        """
+        Convert the board state to a dictionary for JSON serialization.
+        Exemple:
+        {
+            "board": [
+                [None, "0", None, "1", None, None, None],
+                ...
+                [None, "1", None, "0", "1", "1", None]
+            ],
+            "currentPlayer": "0"
+        }
+        """
+
+        return {
+            "board": [
+                [
+                    None if piece is None else piece.get_color()
+                    for piece in row
+                ]
+                for row in self.grid
+            ],
+            "currentPlayer": self.current_player
+        }
