@@ -1,190 +1,176 @@
-const ROWS = 6;
-const COLS = 7;
-const EMPTY = 0, RED = 1, YELLOW = 2;
+import * as api from "./api.js";
+import * as ui from "./ui.js";
 
 const params = new URLSearchParams(window.location.search);
-const mode = params.get("mode") || "pvp";       // "pvp" | "ai"
-const aiName = params.get("ai") || "random";    // which AI to fight
+const mode = params.get("mode") || "pvp";
+const aiName = params.get("ai") || "random";
+const order = params.get("order") || "first";
+const myColor = params.get("color") || "red";
 
-const AI_LABELS = {
-    random: "🎲 Randy the Random",
-    minimax: "🧠 Minimax",
-    neural: "🤖 Neural Net",
-};
+const humanPlayer = mode === "ai" && order === "second" ? ui.PLAYER_1 : ui.PLAYER_0;
+const aiPlayer = 1 - humanPlayer;
 
-const boardEl = document.getElementById("board");
-const turnDisc = document.getElementById("turn-disc");
-const turnText = document.getElementById("turn-text");
-const statusNote = document.getElementById("status-note");
-const overlay = document.getElementById("overlay");
-const overlayTitle = document.getElementById("overlay-title");
-const opponentLabel = document.getElementById("opponent-label");
+if (mode === "ai") {
+    const otherColor = myColor === "red" ? "yellow" : "red";
+    ui.setPlayerColors({ [humanPlayer]: myColor, [aiPlayer]: otherColor });
+}
 
-let board, current, gameOver, locked;
+let board;
+let current;
+let gameOver;
+let locked;
 
-opponentLabel.textContent =
-    mode === "ai" ? `You (Red) vs ${AI_LABELS[aiName] || aiName}` : "Red vs Yellow — local game";
+function colorName(player) {
+    const color = ui.colorOf(player);
+    return color.charAt(0).toUpperCase() + color.slice(1);
+}
 
-function initGame() {
-    board = Array.from({ length: ROWS }, () => Array(COLS).fill(EMPTY));
-    current = RED;
+ui.setOpponentLabel(
+    mode === "ai"
+        ? `You (${colorName(humanPlayer)}, ${order}) vs ${aiName}`
+        : "Red vs Yellow — local game"
+);
+
+async function initGame() {
     gameOver = false;
     locked = false;
-    statusNote.textContent = "";
-    overlay.classList.add("hidden");
-    renderBoard();
-    updateTurnIndicator();
-}
+    current = ui.PLAYER_0;
 
-function renderBoard() {
-    boardEl.innerHTML = "";
-    for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-            const cell = document.createElement("div");
-            cell.className = "cell";
-            cell.dataset.row = r;
-            cell.dataset.col = c;
-            cell.addEventListener("click", () => handleColumnClick(c));
-            cell.addEventListener("mouseenter", () => highlightColumn(c, true));
-            cell.addEventListener("mouseleave", () => highlightColumn(c, false));
-            boardEl.appendChild(cell);
+    ui.hideOverlay();
+    ui.setStatus("");
+    ui.buildBoard(handleColumnClick);
+    updateTurnIndicator();
+
+    try {
+        await api.newGame();
+        if (mode === "ai") {
+            const res = await api.chooseAi(aiName);
+            if (!res.success) {
+                ui.setStatus(`⚠ This AI is not available yet: ${aiName}`);
+                locked = true;
+                return;
+            }
         }
+        const state = await api.getBoard();
+        board = state.board;
+        current = state.currentPlayer;
+        ui.renderBoard(board);
+        updateTurnIndicator();
+
+        if (mode === "ai" && current === aiPlayer) {
+            await aiTurn();
+        }
+    } catch (err) {
+        ui.setStatus("⚠ Could not reach the server.");
+        locked = true;
     }
 }
 
-function highlightColumn(col, on) {
-    if (gameOver || locked) on = false;
-    boardEl.querySelectorAll(`.cell[data-col="${col}"]`).forEach((cell) => {
-        const r = +cell.dataset.row;
-        cell.classList.toggle("col-hover", on && board[r][col] === EMPTY);
-    });
-}
-
-function lowestEmptyRow(col) {
-    for (let r = ROWS - 1; r >= 0; r--) {
-        if (board[r][col] === EMPTY) return r;
-    }
-    return -1;
-}
-
-function placeDisc(col, player) {
-    const row = lowestEmptyRow(col);
-    if (row === -1) return null;
-    board[row][col] = player;
-
-    const cell = boardEl.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-    const disc = document.createElement("div");
-    disc.className = `disc ${player === RED ? "red" : "yellow"}`;
-    disc.style.setProperty("--drop-rows", row + 1);
-    cell.appendChild(disc);
-    return row;
-}
-
-function handleColumnClick(col) {
+async function handleColumnClick(col) {
     if (gameOver || locked) return;
-    const row = placeDisc(col, current);
-    if (row === null) return;
-    afterMove(row, col);
-}
+    if (mode === "ai" && current !== humanPlayer) return;
+    locked = true;
 
-function afterMove(row, col) {
-    const winCells = checkWin(row, col);
-    if (winCells) {
-        gameOver = true;
-        winCells.forEach(([r, c]) =>
-            boardEl.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`).classList.add("win")
-        );
-        showOverlay(winnerLabel(current) + " wins! 🎉");
-        return;
+    const finished = await playMove(() => api.userPlay(col));
+    if (finished) return;
+
+    if (mode === "ai" && current === aiPlayer) {
+        await aiTurn();
+    } else {
+        locked = false;
     }
-    if (board[0].every((v) => v !== EMPTY) && board.flat().every((v) => v !== EMPTY)) {
-        gameOver = true;
-        showOverlay("It's a draw! 🤝");
-        return;
-    }
-
-    current = current === RED ? YELLOW : RED;
-    updateTurnIndicator();
-
-    if (mode === "ai" && current === YELLOW) {
-        aiTurn();
-    }
-}
-
-function winnerLabel(player) {
-    if (mode === "ai") return player === RED ? "You" : AI_LABELS[aiName] || "AI";
-    return player === RED ? "Red" : "Yellow";
 }
 
 async function aiTurn() {
-    locked = true;
-    statusNote.textContent = "AI is thinking…";
-    let col = null;
-    try {
-        const res = await fetch("/api/move", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ board, ai: aiName, player: YELLOW }),
-        });
-        if (res.ok) {
-            const data = await res.json();
-            if (Number.isInteger(data.column)) col = data.column;
-        }
-    } catch (_) {
-        /* backend not ready yet — fall back below */
-    }
+    ui.setStatus("AI is thinking…");
+    await new Promise((resolve) => setTimeout(resolve, 450));
 
-    if (col === null || lowestEmptyRow(col) === -1) {
-        // Fallback: random valid column, so the frontend is testable without the AI backend
-        const valid = [];
-        for (let c = 0; c < COLS; c++) if (lowestEmptyRow(c) !== -1) valid.push(c);
-        col = valid[Math.floor(Math.random() * valid.length)];
-        statusNote.textContent = "⚠ AI backend unavailable — playing a random move.";
-    } else {
-        statusNote.textContent = "";
-    }
-
-    // Small delay so the AI move feels natural
-    setTimeout(() => {
+    const finished = await playMove(() => api.aiPlay());
+    if (!finished) {
+        ui.setStatus("");
         locked = false;
-        const row = placeDisc(col, current);
-        if (row !== null) afterMove(row, col);
-    }, 450);
+    }
 }
 
-function checkWin(row, col) {
-    const player = board[row][col];
-    const dirs = [ [0, 1], [1, 0], [1, 1], [1, -1] ];
-    for (const [dr, dc] of dirs) {
-        const cells = [[row, col]];
-        for (const sign of [1, -1]) {
-            let r = row + dr * sign, c = col + dc * sign;
-            while (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === player) {
-                cells.push([r, c]);
-                r += dr * sign;
-                c += dc * sign;
+async function playMove(request) {
+    let data;
+    try {
+        data = await request();
+    } catch (err) {
+        ui.setStatus("⚠ Could not reach the server.");
+        locked = false;
+        return true;
+    }
+
+    if (!data.success) {
+        locked = false;
+        return true;
+    }
+
+    const newBoard = data.board.board;
+    ui.renderBoard(newBoard, findNewDisc(board, newBoard));
+    board = newBoard;
+    current = data.board.currentPlayer;
+
+    if (data.winner) {
+        const winner = 1 - current;
+        gameOver = true;
+        ui.highlightWin(findWinCells(board, winner));
+        ui.showOverlay(winnerLabel(winner) + " wins! 🎉");
+        return true;
+    }
+    if (data.draw) {
+        gameOver = true;
+        ui.showOverlay("It's a draw! 🤝");
+        return true;
+    }
+
+    updateTurnIndicator();
+    return false;
+}
+
+function findNewDisc(oldBoard, newBoard) {
+    for (let r = 0; r < ui.ROWS; r++) {
+        for (let c = 0; c < ui.COLS; c++) {
+            if (newBoard[r][c] !== null && (!oldBoard || oldBoard[r][c] === null)) {
+                return { row: r, col: c };
             }
         }
-        if (cells.length >= 4) return cells;
     }
     return null;
 }
 
+function findWinCells(board, player) {
+    const dirs = [ [0, 1], [1, 0], [1, 1], [1, -1] ];
+    for (let r = 0; r < ui.ROWS; r++) {
+        for (let c = 0; c < ui.COLS; c++) {
+            if (board[r][c] !== player) continue;
+            for (const [dr, dc] of dirs) {
+                const cells = [];
+                for (let i = 0; i < 4; i++) {
+                    const rr = r + dr * i, cc = c + dc * i;
+                    if (rr < 0 || rr >= ui.ROWS || cc < 0 || cc >= ui.COLS) break;
+                    if (board[rr][cc] !== player) break;
+                    cells.push([rr, cc]);
+                }
+                if (cells.length === 4) return cells;
+            }
+        }
+    }
+    return [];
+}
+
+function winnerLabel(player) {
+    return colorName(player);
+}
+
 function updateTurnIndicator() {
-    const isRed = current === RED;
-    turnDisc.className = `turn-disc ${isRed ? "red" : "yellow"}`;
-    turnText.textContent =
+    const text =
         mode === "ai"
-            ? isRed ? "Your turn" : "AI's turn"
-            : isRed ? "Red's turn" : "Yellow's turn";
+            ? current === humanPlayer ? "Your turn" : "AI's turn"
+            : `${colorName(current)}'s turn`;
+    ui.setTurnIndicator(current, text);
 }
 
-function showOverlay(text) {
-    overlayTitle.textContent = text;
-    overlay.classList.remove("hidden");
-}
-
-document.getElementById("restart-btn").addEventListener("click", initGame);
-document.getElementById("play-again-btn").addEventListener("click", initGame);
-
+ui.onRestart(initGame);
 initGame();

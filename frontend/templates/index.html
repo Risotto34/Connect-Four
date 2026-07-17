@@ -14,7 +14,7 @@
     <section class="screen menu-screen">
         <div class="menu-card">
             <h1 class="title">CONNECT<span class="title-four">4</span></h1>
-            <p class="subtitle">Choose your opponent</p>
+            <p class="subtitle">Choose your game mode</p>
 
             <div class="opponent-list">
                 <a class="opponent-btn" href="/game?mode=pvp">
@@ -24,27 +24,34 @@
                         <span class="opp-desc">Local duel — for testing &amp; fun</span>
                     </span>
                 </a>
-                <a class="opponent-btn" href="/game?mode=ai&ai=random">
-                    <span class="opp-icon">🎲</span>
-                    <span class="opp-info">
-                        <span class="opp-name">Randy the Random</span>
-                        <span class="opp-desc">Plays completely at random</span>
-                    </span>
-                </a>
-                <a class="opponent-btn" href="/game?mode=ai&ai=minimax">
-                    <span class="opp-icon">🧠</span>
-                    <span class="opp-info">
-                        <span class="opp-name">Minimax</span>
-                        <span class="opp-desc">Classic search algorithm</span>
-                    </span>
-                </a>
-                <a class="opponent-btn" href="/game?mode=ai&ai=neural">
+                <button id="mode-ai-btn" class="opponent-btn" type="button">
                     <span class="opp-icon">🤖</span>
                     <span class="opp-info">
-                        <span class="opp-name">Neural Net</span>
-                        <span class="opp-desc">Trained model — the real deal</span>
+                        <span class="opp-name">Player vs AI</span>
+                        <span class="opp-desc">Face one of our models</span>
                     </span>
-                </a>
+                </button>
+            </div>
+
+            <div id="ai-picker" class="ai-picker hidden">
+                <label class="ai-picker-label" for="ai-select">Choose your opponent</label>
+                <select id="ai-select" class="ai-select"></select>
+                <p id="ai-desc" class="opp-desc"></p>
+                <div class="ai-option-row">
+                    <label class="ai-picker-label" for="order-select">You play</label>
+                    <select id="order-select" class="ai-select">
+                        <option value="first">First</option>
+                        <option value="second">Second</option>
+                    </select>
+                </div>
+                <div class="ai-option-row">
+                    <label class="ai-picker-label" for="color-select">Your color</label>
+                    <select id="color-select" class="ai-select">
+                        <option value="red">🔴 Red</option>
+                        <option value="yellow">🟡 Yellow</option>
+                    </select>
+                </div>
+                <button id="play-ai-btn" class="primary-btn" type="button">Play</button>
             </div>
         </div>
 
@@ -56,5 +63,6 @@
         </div>
     </section>
 
+    <script type="module" src="{{ url_for('static', filename='js/menu.js') }}"></script>
 </body>
 </html>
