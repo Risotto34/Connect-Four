@@ -61,6 +61,7 @@ class Board:
                 return False
 
         return True
+    
 
     def check_win(self, piece: Piece) -> bool:
         """
@@ -121,18 +122,49 @@ class Board:
 
         return self.grid[0][column] is not None
     
+    def get_valid_columns(self) -> list[int]:
+        """
+        Return a list of valid columns where a piece can be added.
+        """
+
+        valid_columns = []
+
+        for column in range(self.COLUMNS):
+            if not self.column_is_full(column):
+                valid_columns.append(column)
+
+        return valid_columns
+    
+    def copy_board(self):
+        """
+        Create a copy of the board.
+        """
+
+        new_board = Board()
+
+        for row in range(self.ROWS):
+            for col in range(self.COLUMNS):
+                piece = self.grid[row][col]
+
+                if piece is not None:
+                    new_board.grid[row][col] = Piece(piece.get_color())
+
+        new_board.current_player = self.current_player
+
+        return new_board
+    
     def to_dict(self):
         """
         Convert the board state to a dictionary for JSON serialization.
         Exemple:
-        {
-            "board": [
-                [None, "0", None, "1", None, None, None],
-                ...
-                [None, "1", None, "0", "1", "1", None]
-            ],
-            "currentPlayer": "0"
-        }
+            {
+                "board": [
+                    [None, "0", None, "1", None, None, None],
+                    ...
+                    [None, "1", None, "0", "1", "1", None]
+                ],
+                "currentPlayer": "0"
+            }
         """
 
         return {
