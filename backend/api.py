@@ -2,10 +2,12 @@ from flask import Flask, render_template, jsonify, request
 import os
 import json
 
+
 from .model.Board import Board
 from .model.Piece import Piece
 
 from .model.AI.Random import Random
+from .model.AI.Minimax import Minimax
 
 # ----------------------
 # App
@@ -29,7 +31,7 @@ def start():
 # Variables
 # ----------------------
 
-with open(os.path.join(BASE_DIR, "registry.json"), "r") as file:
+with open(os.path.join(BASE_DIR, "backend/registry.json"), "r") as file:
     AI_REGISTRY = json.load(file)
 
 board = Board()
@@ -147,6 +149,8 @@ def choose_ai():
     match ai_type:
         case "random":
             current_ai = Random()
+        case "minimax":
+            current_ai = Minimax(Piece(board.current_player))
         case _:
             return jsonify({"success": False, "message": "Invalid AI type."})
     return jsonify({"success": True})
