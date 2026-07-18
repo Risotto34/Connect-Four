@@ -34,9 +34,17 @@ export function buildBoard(onColumnClick) {
             cell.dataset.row = r;
             cell.dataset.col = c;
             cell.addEventListener("click", () => onColumnClick(c));
+            cell.addEventListener("mouseenter", () => setColumnHover(c, true));
+            cell.addEventListener("mouseleave", () => setColumnHover(c, false));
             boardEl.appendChild(cell);
         }
     }
+}
+
+function setColumnHover(col, on) {
+    boardEl.querySelectorAll(`.cell[data-col="${col}"]`).forEach((cell) =>
+        cell.classList.toggle("col-hover", on)
+    );
 }
 
 export function renderBoard(board, animateCell = null) {
