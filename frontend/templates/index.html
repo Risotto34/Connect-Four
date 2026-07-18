@@ -16,7 +16,7 @@
             <h1 class="title">CONNECT<span class="title-four">4</span></h1>
             <p class="subtitle">Choose your game mode</p>
 
-            <div class="opponent-list">
+            <div id="opponent-list" class="opponent-list">
                 <a class="opponent-btn" href="/game?mode=pvp">
                     <span class="opp-icon">👥</span>
                     <span class="opp-info">
@@ -29,6 +29,13 @@
                     <span class="opp-info">
                         <span class="opp-name">Player vs AI</span>
                         <span class="opp-desc">Face one of our models</span>
+                    </span>
+                </button>
+                <button id="mode-aivai-btn" class="opponent-btn" type="button">
+                    <span class="opp-icon">⚔️</span>
+                    <span class="opp-info">
+                        <span class="opp-name">AI vs AI</span>
+                        <span class="opp-desc">Watch two models battle it out</span>
                     </span>
                 </button>
             </div>
@@ -45,6 +52,18 @@
                     </select>
                 </div>
                 <button id="play-ai-btn" class="primary-btn" type="button">Play</button>
+                <button class="ghost-btn back-btn" type="button" data-back>← Back</button>
+            </div>
+
+            <div id="aivai-picker" class="ai-picker hidden">
+                <label class="ai-picker-label" for="ai1-select">First AI (plays first)</label>
+                <select id="ai1-select" class="ai-select"></select>
+                <p id="ai1-desc" class="opp-desc"></p>
+                <label class="ai-picker-label" for="ai2-select">Second AI</label>
+                <select id="ai2-select" class="ai-select"></select>
+                <p id="ai2-desc" class="opp-desc"></p>
+                <button id="play-aivai-btn" class="primary-btn" type="button">Watch</button>
+                <button class="ghost-btn back-btn" type="button" data-back>← Back</button>
             </div>
         </div>
 
