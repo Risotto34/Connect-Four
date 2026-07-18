@@ -90,6 +90,15 @@ body {
     color: var(--text);
     transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
     text-align: left;
+    cursor: pointer;
+    font: inherit;
+}
+
+.opponent-list.hidden { display: none; }
+
+.back-btn {
+    margin-top: 4px;
+    align-self: center;
 }
 
 .opponent-btn:hover {

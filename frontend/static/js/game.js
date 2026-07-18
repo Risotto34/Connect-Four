@@ -5,9 +5,11 @@ const params = new URLSearchParams(window.location.search);
 const mode = params.get("mode") || "pvp";
 const aiName = params.get("ai") || "random";
 const order = params.get("order") || "first";
+const aiNames = [params.get("ai1") || "random", params.get("ai2") || "random"];
 
 let humanPlayer;
 let aiPlayer;
+let aiOf = {};
 
 let board;
 let current;
@@ -47,21 +49,29 @@ async function initGame() {
         if (mode === "ai") {
             humanPlayer = order === "first" ? current : 1 - current;
             aiPlayer = 1 - humanPlayer;
+        } else if (mode === "aivai") {
+            humanPlayer = null;
+            aiOf = { [current]: aiNames[0], [1 - current]: aiNames[1] };
         } else {
             humanPlayer = current;
             aiPlayer = 1 - current;
         }
-        
+
         ui.setOpponentLabel(
             mode === "ai"
                 ? `You (${colorName(humanPlayer)}, ${order}) vs ${aiName}`
-                : "Red vs Yellow — local game"
+                : mode === "aivai"
+                    ? `${aiNames[0]} (${colorName(current)}) vs ${aiNames[1]} (${colorName(1 - current)})`
+                    : "Red vs Yellow — local game"
         );
-        
+
         ui.renderBoard(board);
         updateTurnIndicator();
         if (mode === "ai" && current === aiPlayer) {
             await aiTurn();
+        } else if (mode === "aivai") {
+            locked = true;
+            await aivaiLoop();
         }
 
     } catch (err) {
@@ -93,6 +103,28 @@ async function aiTurn() {
     if (!finished) {
         ui.setStatus("");
         locked = false;
+    }
+}
+
+async function aivaiLoop() {
+    while (!gameOver) {
+        ui.setStatus(`${aiOf[current]} is thinking…`);
+        await new Promise((resolve) => setTimeout(resolve, 450));
+
+        try {
+            const res = await api.chooseAi(aiOf[current]);
+            if (!res.success) {
+                ui.setStatus(`⚠ This AI is not available yet: ${aiOf[current]}`);
+                return;
+            }
+        } catch (err) {
+            ui.setStatus("⚠ Could not reach the server.");
+            return;
+        }
+
+        const finished = await playMove(api.aiPlay);
+        if (finished) return;
+        ui.setStatus("");
     }
 }
 
@@ -167,6 +199,9 @@ function findWinCells(board, player) {
 }
 
 function winnerLabel(player) {
+    if (mode === "aivai") {
+        return `${aiOf[player]} (${colorName(player)})`;
+    }
     return colorName(player);
 }
 
@@ -174,7 +209,9 @@ function updateTurnIndicator() {
     const text =
         mode === "ai"
             ? current === humanPlayer ? "Your turn" : "AI's turn"
-            : `${colorName(current)}'s turn`;
+            : mode === "aivai"
+                ? `${aiOf[current]}'s turn`
+                : `${colorName(current)}'s turn`;
     ui.setTurnIndicator(current, text);
 }
 
