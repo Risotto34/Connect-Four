@@ -23,22 +23,14 @@
 
         <p id="opponent-label" class="opponent-label"></p>
 
+        <p id="result-banner" class="result-banner hidden"></p>
+
         <div class="board-wrap">
             <div id="board" class="board"></div>
         </div>
 
         <p id="status-note" class="status-note"></p>
 
-        <!-- Game over overlay -->
-        <div id="overlay" class="overlay hidden">
-            <div class="overlay-card">
-                <h2 id="overlay-title">Red wins!</h2>
-                <div class="overlay-actions">
-                    <button id="play-again-btn" class="primary-btn">Play again</button>
-                    <a href="/" class="ghost-btn">Back to menu</a>
-                </div>
-            </div>
-        </div>
     </section>
 
     <script type="module" src="{{ url_for('static', filename='js/game.js') }}"></script>
