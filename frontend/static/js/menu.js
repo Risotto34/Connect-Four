@@ -40,9 +40,8 @@ select.addEventListener("change", updateDescription);
 
 playBtn.addEventListener("click", () => {
     const order = document.getElementById("order-select").value;
-    const color = document.getElementById("color-select").value;
     window.location.href =
-        `/game?mode=ai&ai=${encodeURIComponent(select.value)}&order=${order}&color=${color}`;
+        `/game?mode=ai&ai=${encodeURIComponent(select.value)}&order=${order}`;
 });
 
 loadAis();

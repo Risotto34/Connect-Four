@@ -5,15 +5,9 @@ const params = new URLSearchParams(window.location.search);
 const mode = params.get("mode") || "pvp";
 const aiName = params.get("ai") || "random";
 const order = params.get("order") || "first";
-const myColor = params.get("color") || "red";
 
-const humanPlayer = mode === "ai" && order === "second" ? ui.PLAYER_1 : ui.PLAYER_0;
-const aiPlayer = 1 - humanPlayer;
-
-if (mode === "ai") {
-    const otherColor = myColor === "red" ? "yellow" : "red";
-    ui.setPlayerColors({ [humanPlayer]: myColor, [aiPlayer]: otherColor });
-}
+let humanPlayer;
+let aiPlayer;
 
 let board;
 let current;
@@ -24,12 +18,6 @@ function colorName(player) {
     const color = ui.colorOf(player);
     return color.charAt(0).toUpperCase() + color.slice(1);
 }
-
-ui.setOpponentLabel(
-    mode === "ai"
-        ? `You (${colorName(humanPlayer)}, ${order}) vs ${aiName}`
-        : "Red vs Yellow — local game"
-);
 
 async function initGame() {
     gameOver = false;
@@ -54,12 +42,28 @@ async function initGame() {
         const state = await api.getBoard();
         board = state.board;
         current = state.currentPlayer;
+        ui.setPlayerColors({ [current]: "red", [1 - current]: "yellow" });
+
+        if (mode === "ai") {
+            humanPlayer = order === "first" ? current : 1 - current;
+            aiPlayer = 1 - humanPlayer;
+        } else {
+            humanPlayer = current;
+            aiPlayer = 1 - current;
+        }
+        
+        ui.setOpponentLabel(
+            mode === "ai"
+                ? `You (${colorName(humanPlayer)}, ${order}) vs ${aiName}`
+                : "Red vs Yellow — local game"
+        );
+        
         ui.renderBoard(board);
         updateTurnIndicator();
-
         if (mode === "ai" && current === aiPlayer) {
             await aiTurn();
         }
+
     } catch (err) {
         ui.setStatus("⚠ Could not reach the server.");
         locked = true;
