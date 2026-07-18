@@ -237,39 +237,19 @@ body {
     font-size: 0.9rem;
 }
 
-/* Overlay */
-.overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(10, 12, 30, 0.75);
-    backdrop-filter: blur(6px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-}
-.overlay.hidden { display: none; }
-
-.overlay-card {
-    background: var(--bg-2);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius);
-    padding: 40px 48px;
+/* Result banner */
+.result-banner {
+    font-size: 1.4rem;
+    font-weight: 800;
     text-align: center;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    margin-bottom: 16px;
     animation: pop 0.3s ease both;
 }
+.result-banner.hidden { display: none; }
+
 @keyframes pop {
     from { transform: scale(0.85); opacity: 0; }
     to   { transform: scale(1); opacity: 1; }
-}
-
-.overlay-card h2 { font-size: 2rem; margin-bottom: 24px; }
-
-.overlay-actions {
-    display: flex;
-    gap: 14px;
-    justify-content: center;
 }
 
 .primary-btn {

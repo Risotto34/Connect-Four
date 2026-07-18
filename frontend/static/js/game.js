@@ -24,7 +24,7 @@ async function initGame() {
     locked = false;
     current = ui.PLAYER_0;
 
-    ui.hideOverlay();
+    ui.hideResult();
     ui.setStatus("");
     ui.buildBoard(handleColumnClick);
     updateTurnIndicator();
@@ -119,13 +119,15 @@ async function playMove(request) {
     if (data.winner) {
         const winner = 1 - current;
         gameOver = true;
+        ui.setStatus("");
         ui.highlightWin(findWinCells(board, winner));
-        ui.showOverlay(winnerLabel(winner) + " wins! 🎉");
+        ui.showResult(winnerLabel(winner) + " wins! 🎉");
         return true;
     }
     if (data.draw) {
         gameOver = true;
-        ui.showOverlay("It's a draw! 🤝");
+        ui.setStatus("");
+        ui.showResult("It's a draw! 🤝");
         return true;
     }
 
