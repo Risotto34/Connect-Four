@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Four — Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <section class="screen game-screen">
+        <header class="game-header">
+            <a href="/" class="ghost-btn">← Menu</a>
+            <div class="turn-indicator">
+                <span id="turn-disc" class="turn-disc red"></span>
+                <span id="turn-text">Red's turn</span>
+            </div>
+            <button id="restart-btn" class="ghost-btn">↻ Restart</button>
+        </header>
+
+        <p id="opponent-label" class="opponent-label"></p>
+
+        <div class="board-wrap">
+            <div id="board" class="board"></div>
+        </div>
+
+        <p id="status-note" class="status-note"></p>
+
+        <!-- Game over overlay -->
+        <div id="overlay" class="overlay hidden">
+            <div class="overlay-card">
+                <h2 id="overlay-title">Red wins!</h2>
+                <div class="overlay-actions">
+                    <button id="play-again-btn" class="primary-btn">Play again</button>
+                    <a href="/" class="ghost-btn">Back to menu</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script type="module" src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+    "ais": [
+        {
+            "name": "Random",
+            "description": "Chooses a random valid column."
+        },
+        {
+            "name": "Minimax",
+            "description": "Chooses the best move using the Min-Max algorithm."
+        }
+    ]
+}
