@@ -49,7 +49,7 @@ def play(column: int) -> bool:
     Play a piece in the specified column.
     """
 
-    piece = Piece(board.current_player)
+    piece = board.current_player
 
     if not board.add_piece(column, piece):
         return jsonify({"success": False, "message": "Column is full."})
@@ -150,7 +150,7 @@ def choose_ai():
         case "random":
             current_ai = Random()
         case "minimax":
-            current_ai = Minimax(Piece(board.current_player))
+            current_ai = Minimax(5)
         case _:
             return jsonify({"success": False, "message": "Invalid AI type."})
     return jsonify({"success": True})

@@ -26,12 +26,19 @@ class Piece:
 
         return self.color
     
-    def adverse_color(self) -> int:
+    def get_adverse_color(self) -> int:
         """
         Return the color of the opposing player.
         """
 
         return (self.color + 1) % 2
+    
+    def get_adverse_piece(self) -> "Piece":
+        """
+        Return a Piece object of the opposing player.
+        """
+
+        return Piece(self.get_adverse_color())
     
     def to_dict(self) -> dict:
         """

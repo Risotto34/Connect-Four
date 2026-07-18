@@ -14,7 +14,7 @@ class Board:
     COLUMNS: int = 7
 
     def __init__(self):
-        self.current_player: int = 0
+        self.current_player: Piece = Piece(0)
         self.grid: list[list[Piece | None]] = [[None for _ in range(self.COLUMNS)] for _ in range(self.ROWS)]
 
     def display(self):
@@ -48,7 +48,7 @@ class Board:
         for row in range(self.ROWS - 1, -1, -1):
             if self.grid[row][column] is None:
                 self.grid[row][column] = piece
-                self.current_player = (self.current_player + 1) % 2
+                self.current_player = self.current_player.get_adverse_piece()
                 return True
 
         return False
@@ -60,8 +60,7 @@ class Board:
             if self.grid[0][column] is None:
                 return False
 
-        return True
-    
+        return True    
 
     def check_win(self, piece: Piece) -> bool:
         """
@@ -112,6 +111,13 @@ class Board:
 
         return False
     
+    def is_finished(self) -> bool:
+        """
+        Check if the game is finished (either a win or a draw).
+        """
+
+        return self.is_full() or self.check_win(self.current_player) or self.check_win(self.current_player.get_adverse_piece())
+
     def column_is_full(self, column: int) -> bool:
         """
         Check if a column is full.
@@ -175,5 +181,5 @@ class Board:
                 ]
                 for row in self.grid
             ],
-            "currentPlayer": self.current_player
+            "currentPlayer": self.current_player.get_color()
         }
