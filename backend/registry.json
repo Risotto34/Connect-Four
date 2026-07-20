@@ -7,6 +7,10 @@
         {
             "name": "Minimax",
             "description": "Chooses the best move using the Min-Max algorithm."
+        },
+        {
+            "name": "MCTS",
+            "description": "Chooses the best move using the Monte Carlo Tree Search algorithm."
         }
     ]
 }
