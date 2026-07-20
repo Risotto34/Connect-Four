@@ -14,5 +14,4 @@ class Random(AI):
         Choose a random valid column from the board.
         """
         
-        # Return a random available column
         return random.choice(board.get_valid_columns())

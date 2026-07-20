@@ -6,8 +6,11 @@ import json
 from .model.Board import Board
 from .model.Piece import Piece
 
+
 from .model.AI.Random import Random
 from .model.AI.Minimax import Minimax
+from .model.AI.AI import AI
+
 
 # ----------------------
 # App
@@ -36,7 +39,8 @@ with open(os.path.join(BASE_DIR, "backend/registry.json"), "r") as file:
 
 board = Board()
 
-current_ai = None
+current_ai_0: AI = None
+current_ai_1: AI = None
 
 
 # ----------------------
@@ -49,12 +53,12 @@ def play(column: int) -> bool:
     Play a piece in the specified column.
     """
 
-    piece = board.current_player
+    color = board.current_player
 
-    if not board.add_piece(column, piece):
+    if not board.add_piece(column, color):
         return jsonify({"success": False, "message": "Column is full."})
 
-    winner = board.check_win(piece)
+    winner = board.check_win(color)
     draw = board.is_full()
 
     return jsonify(
@@ -124,9 +128,20 @@ def user_play():
 def ai_play():
     """
     AI plays a piece.
+    Request body:
+    {
+        "number": 0
+    }
     """
 
-    column = current_ai.play(board)
+    data = request.get_json()
+    number = data["number"]
+    column = None
+
+    if number == 0:
+        column = current_ai_0.play(board)
+    elif number == 1:
+        column = current_ai_1.play(board)
 
     return play(column)
 
@@ -137,23 +152,41 @@ def choose_ai():
     Choose the AI to play against.
     Request body:
     {
+        "number": 0,
         "ai": "random"
     }
     """
 
     data = request.get_json()
+    number = data["number"]
     ai_type = data["ai"]
 
-    global current_ai
+    global current_ai_0, current_ai_1
+    ai = None
 
     match ai_type:
         case "random":
-            current_ai = Random()
+            ai = Random()
         case "minimax":
-            current_ai = Minimax(5)
+            ai = Minimax(5)
         case _:
             return jsonify({"success": False, "message": "Invalid AI type."})
+
+    if number == 0:
+        current_ai_0 = ai
+    elif number == 1:
+        current_ai_1 = ai
+
     return jsonify({"success": True})
+
+
+@app.get("/api/current-player")
+def get_current_player():
+    """
+    Return the current player.
+    """
+
+    return jsonify({"current_player": board.current_player})
 
 
 @app.get("/api/ais")
