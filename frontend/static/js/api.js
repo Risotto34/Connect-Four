@@ -18,16 +18,16 @@ export function newGame() {
     return post("/api/new-game");
 }
 
-export function chooseAi(ai) {
-    return post("/api/choose-ai", { ai });
+export function chooseAi(ai, number = 0) {
+    return post("/api/choose-ai", { ai, number });
 }
 
 export function userPlay(column) {
     return post("/api/user-play", { column });
 }
 
-export function aiPlay() {
-    return post("/api/ai-play");
+export function aiPlay(number = 0) {
+    return post("/api/ai-play", { number });
 }
 
 export function getBoard() {
