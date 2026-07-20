@@ -12,7 +12,7 @@ class Minimax(AI):
 
     SCORES = {"win": 1000000, "three": 20, "two": 10, "center": 5, "overlap": 5}
 
-    def __init__(self, depth: int = 4):
+    def __init__(self, depth: int = 6):
         self.depth: int = depth
         self.ai_color: int = None
         self.human_color: int = None
@@ -107,10 +107,10 @@ class Minimax(AI):
 
         # Check for terminal states
         if board.check_win(self.ai_color):
-            return self.SCORES["win"] + depth
+            return self.SCORES["win"] + depth  # Prefer faster wins
 
         if board.check_win(self.human_color):
-            return -self.SCORES["win"] - depth
+            return -self.SCORES["win"] - depth  # Prefer slower losses
 
         score = 0
 

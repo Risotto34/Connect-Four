@@ -9,6 +9,7 @@ from .model.Piece import Piece
 
 from .model.AI.Random import Random
 from .model.AI.Minimax import Minimax
+from .model.AI.MCTS import MCTS
 from .model.AI.AI import AI
 
 
@@ -168,7 +169,9 @@ def choose_ai():
         case "random":
             ai = Random()
         case "minimax":
-            ai = Minimax(6)
+            ai = Minimax(depth=6)
+        case "mcts":
+            ai = MCTS(iterations=50000)
         case _:
             return jsonify({"success": False, "message": "Invalid AI type."})
 
