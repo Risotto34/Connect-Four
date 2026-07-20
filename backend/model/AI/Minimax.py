@@ -10,7 +10,7 @@ class Minimax(AI):
     Represents a Connect Four AI using the Min-Max algorithm.
     """
 
-    SCORES = {"win": 1000000, "three": 100, "two": 10, "center": 5, "overlap": 50}
+    SCORES = {"win": 1000000, "three": 20, "two": 10, "center": 5, "overlap": 5}
 
     def __init__(self, depth: int = 4):
         self.depth: int = depth

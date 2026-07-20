@@ -152,14 +152,14 @@ def choose_ai():
     Choose the AI to play against.
     Request body:
     {
-        "number": 0,
-        "ai": "random"
+        "ai": "random",
+        "number": 0
     }
     """
 
     data = request.get_json()
-    number = data["number"]
     ai_type = data["ai"]
+    number = data["number"]
 
     global current_ai_0, current_ai_1
     ai = None
@@ -168,7 +168,7 @@ def choose_ai():
         case "random":
             ai = Random()
         case "minimax":
-            ai = Minimax(5)
+            ai = Minimax(6)
         case _:
             return jsonify({"success": False, "message": "Invalid AI type."})
 

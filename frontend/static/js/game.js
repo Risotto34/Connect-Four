@@ -112,7 +112,7 @@ async function aivaiLoop() {
         await new Promise((resolve) => setTimeout(resolve, 450));
 
         try {
-            const res = await api.chooseAi(aiOf[current]);
+            const res = await api.chooseAi(aiOf[current], current);
             if (!res.success) {
                 ui.setStatus(`⚠ This AI is not available yet: ${aiOf[current]}`);
                 return;
@@ -122,7 +122,7 @@ async function aivaiLoop() {
             return;
         }
 
-        const finished = await playMove(api.aiPlay);
+        const finished = await playMove(() => api.aiPlay(current));
         if (finished) return;
         ui.setStatus("");
     }
