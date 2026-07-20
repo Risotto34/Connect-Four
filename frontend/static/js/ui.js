@@ -17,8 +17,7 @@ const boardEl = document.getElementById("board");
 const turnDisc = document.getElementById("turn-disc");
 const turnText = document.getElementById("turn-text");
 const statusNote = document.getElementById("status-note");
-const overlay = document.getElementById("overlay");
-const overlayTitle = document.getElementById("overlay-title");
+const resultBanner = document.getElementById("result-banner");
 const opponentLabel = document.getElementById("opponent-label");
 
 function colorClass(player) {
@@ -88,16 +87,15 @@ export function setOpponentLabel(text) {
     opponentLabel.textContent = text;
 }
 
-export function showOverlay(text) {
-    overlayTitle.textContent = text;
-    overlay.classList.remove("hidden");
+export function showResult(text) {
+    resultBanner.textContent = text;
+    resultBanner.classList.remove("hidden");
 }
 
-export function hideOverlay() {
-    overlay.classList.add("hidden");
+export function hideResult() {
+    resultBanner.classList.add("hidden");
 }
 
 export function onRestart(handler) {
     document.getElementById("restart-btn").addEventListener("click", handler);
-    document.getElementById("play-again-btn").addEventListener("click", handler);
 }
