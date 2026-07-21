@@ -7,10 +7,10 @@ from .model.Board import Board
 from .model.Piece import Piece
 
 
-from .model.AI.Random import Random
-from .model.AI.Minimax import Minimax
-from .model.AI.MCTS import MCTS
-from .model.AI.AI import AI
+from .model.AI import AI
+from .model.ai.Random import Random
+from .model.ai.Minimax import Minimax
+from .model.ai.MCTS import MCTS
 
 
 # ----------------------

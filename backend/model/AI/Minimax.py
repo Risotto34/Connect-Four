@@ -1,6 +1,6 @@
 import math
 
-from .AI import AI
+from ..AI import AI
 from ..Piece import Piece
 from ..Board import Board
 

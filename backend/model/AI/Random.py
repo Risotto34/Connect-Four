@@ -1,6 +1,6 @@
 import random
 
-from .AI import AI
+from ..AI import AI
 from ..Board import Board
 
 

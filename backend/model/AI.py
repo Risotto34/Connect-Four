@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ..Board import Board
+from .Board import Board
 
 
 class AI(ABC):
