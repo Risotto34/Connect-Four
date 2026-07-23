@@ -11,6 +11,7 @@ from .model.AI import AI
 from .model.ai.Random import Random
 from .model.ai.Minimax import Minimax
 from .model.ai.MCTS import MCTS
+from .model.ai.NeuralNetwork import NeuralNetwork
 
 
 # ----------------------
@@ -172,6 +173,9 @@ def choose_ai():
             ai = Minimax(depth=6)
         case "mcts":
             ai = MCTS(iterations=50000)
+        case "neuralnetwork":
+            ai = NeuralNetwork()
+            ai.load()
         case _:
             return jsonify({"success": False, "message": "Invalid AI type."})
 
