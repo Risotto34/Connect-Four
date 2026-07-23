@@ -10,12 +10,11 @@ class Minimax(AI):
     Represents a Connect Four AI using the Min-Max algorithm.
     """
 
-    SCORES = {"win": 1000000, "three": 20, "two": 10, "center": 5, "overlap": 5}
-
     def __init__(self, depth: int = 6):
         self.depth: int = depth
         self.ai_color: int = None
         self.human_color: int = None
+        self.weights = {"win": 1000000, "three": 20, "two": 10, "center": 5, "overlap": 5}
 
     def play(self, board: Board) -> int:
         """
@@ -107,10 +106,10 @@ class Minimax(AI):
 
         # Check for terminal states
         if board.check_win(self.ai_color):
-            return self.SCORES["win"] + depth  # Prefer faster wins
+            return self.weights["win"] + depth  # Prefer faster wins
 
         if board.check_win(self.human_color):
-            return -self.SCORES["win"] - depth  # Prefer slower losses
+            return -self.weights["win"] - depth  # Prefer slower losses
 
         score = 0
 
@@ -120,9 +119,9 @@ class Minimax(AI):
         for piece in [board.grid[row][center] for row in range(board.ROWS)]:
             if piece is not None:
                 if piece.get_color() == self.ai_color:
-                    score += self.SCORES["center"]
+                    score += self.weights["center"]
                 else:
-                    score -= self.SCORES["center"]
+                    score -= self.weights["center"]
 
         # Evaluate all possible windows of four
         score += self.evaluate_windows(board)
@@ -160,14 +159,14 @@ class Minimax(AI):
             empty = window.count(None)
 
             if ai == 3 and empty == 1:
-                score += self.SCORES["three"]
+                score += self.weights["three"]
             elif ai == 2 and empty == 2:
-                score += self.SCORES["two"]
+                score += self.weights["two"]
 
             if human == 3 and empty == 1:
-                score -= self.SCORES["three"]
+                score -= self.weights["three"]
             elif human == 2 and empty == 2:
-                score -= self.SCORES["two"]
+                score -= self.weights["two"]
 
             # Store pieces for overlap evaluation
             if len(pieces) >= 2:
@@ -178,9 +177,9 @@ class Minimax(AI):
 
         # Calculate overlap bonus
         for piece in set(ai_pieces):
-            score += (ai_pieces.count(piece) - 1) * self.SCORES["overlap"]
+            score += (ai_pieces.count(piece) - 1) * self.weights["overlap"]
 
         for piece in set(human_pieces):
-            score -= (human_pieces.count(piece) - 1) * self.SCORES["overlap"]
+            score -= (human_pieces.count(piece) - 1) * self.weights["overlap"]
 
         return score

@@ -1,10 +1,11 @@
+import os
 import numpy as np
 import joblib
 
+from sklearn.metrics import confusion_matrix
 from sklearn.neural_network import MLPClassifier
 
 from ..AI import AI
-from ..Piece import Piece
 from ..Board import Board
 
 
@@ -13,26 +14,32 @@ class NeuralNetwork(AI):
     Represents a Connect Four AI using a neural network.
     """
 
-    def __init__(self, model_path: str = "brain.pkl"):
+    def __init__(self, model_path: str = "backend/resources/brain.pkl", verbose: bool = False):
         self.model_path = model_path
 
         self.model = MLPClassifier(
-            hidden_layer_sizes=(128, 64, 32),
+            hidden_layer_sizes=(64, 64),
+            learning_rate_init=0.0001,
+            max_iter=10000,
+            n_iter_no_change=100,
             activation="relu",
             solver="adam",
-            max_iter=1000,
             random_state=42,
+            verbose=verbose
         )
 
-        self.ai_color = None
-
-    def train(self, X, Y):
+    def train(self, training_data_path: str = "backend/resources/train_set.pkl"):
         """
         Train the neural network.
 
         X : list of boards
         Y : list of chosen columns
         """
+
+        X, Y = joblib.load(training_data_path)
+
+        if len(X) == 0 or len(Y) == 0:
+            raise ValueError("Training data is empty.")
 
         self.model.fit(X, Y)
 
@@ -43,59 +50,46 @@ class NeuralNetwork(AI):
         Load a trained model.
         """
 
+        if not os.path.exists(self.model_path):
+            raise FileNotFoundError(f"Model file not found at {self.model_path}")
+
         self.model = joblib.load(self.model_path)
+
+    def evaluate(self, train_data_file: str = "backend/resources/train_set.pkl", test_data_path: str = "backend/resources/test_set.pkl"):
+        """
+        Evaluate the neural network on test data.
+        """
+
+        X_train, Y_train = joblib.load(train_data_file)
+        X_test, Y_test = joblib.load(test_data_path)
+
+        if len(X_test) == 0 or len(Y_test) == 0:
+            raise ValueError("Test data is empty.")
+
+        predictions = self.model.predict(X_test)
+
+        print("Train accuracy:", self.model.score(X_train, Y_train))
+        print("Test accuracy:", self.model.score(X_test, Y_test))
+
+        print("\nConfusion matrix:")
+        print(confusion_matrix(Y_test, predictions))
 
     def play(self, board: Board) -> int:
         """
         Choose a column using the neural network.
         """
 
-        self.ai_color = board.current_player
-
-        X = self.board_to_input(board)
+        X = board.as_list()
 
         prediction = self.model.predict([X])
 
         column = int(prediction[0])
 
-        # Sécurité si le réseau choisit une colonne impossible
-        if column not in board.get_valid_columns():
-
-            probabilities = self.model.predict_proba([X])[0]
-
-            # Trie les colonnes par probabilité décroissante
-            choices = np.argsort(probabilities)[::-1]
-
-            for choice in choices:
-                if choice in board.get_valid_columns():
-                    return int(choice)
-
         return column
 
-    def board_to_input(self, board: Board):
-        """
-        Convert board into neural network input.
 
-        Own pieces     = 1
-        Enemy pieces   = -1
-        Empty          = 0
-        """
-
-        inputs = []
-
-        for row in range(board.ROWS):
-
-            for column in range(board.COLUMNS):
-
-                piece = board.grid[row][column]
-
-                if piece is None:
-                    inputs.append(0)
-
-                elif piece.get_color() == self.ai_color:
-                    inputs.append(1)
-
-                else:
-                    inputs.append(-1)
-
-        return inputs
+if __name__ == "__main__":
+    nn = NeuralNetwork(verbose=True)
+    #nn.load()
+    nn.train()
+    nn.evaluate()

@@ -123,16 +123,28 @@ class Board:
 
         return False
 
+    def has_winner(self) -> bool:
+        """
+        Check if there is a winner on the board.
+        """
+
+        return self.check_win(self.current_player) or self.check_win(
+            Piece.get_opposite_color(self.current_player)
+        )
+
+    def check_draw(self) -> bool:
+        """
+        Check if the game is a draw (the board is full and there is no winner).
+        """
+
+        return self.is_full() and not self.has_winner()
+
     def is_finished(self) -> bool:
         """
         Check if the game is finished (either a win or a draw).
         """
 
-        return (
-            self.is_full()
-            or self.check_win(self.current_player)
-            or self.check_win(Piece.get_opposite_color(self.current_player))
-        )
+        return self.is_full() or self.has_winner()
 
     def column_is_full(self, column: int) -> bool:
         """
@@ -156,6 +168,13 @@ class Board:
                 valid_columns.append(column)
 
         return valid_columns
+
+    def count_pieces(self) -> int:
+        """
+        Return the number of pieces on the board.
+        """
+
+        return sum(1 for row in self.grid for piece in row if piece is not None)
 
     def copy(self):
         """
@@ -196,3 +215,43 @@ class Board:
             ],
             "currentPlayer": self.current_player,
         }
+
+    def as_list(self) -> list[int]:
+        """
+        Convert the board state to a list of integers.
+
+        Own pieces     = 1
+        Enemy pieces   = -1
+        Empty          = 0
+        """
+
+        inputs = []
+
+        for row in range(self.ROWS):
+            for column in range(self.COLUMNS):
+
+                piece = self.grid[row][column]
+
+                if piece is None:
+                    inputs.append(0)
+                elif piece.get_color() == self.current_player:
+                    inputs.append(1)
+                else:
+                    inputs.append(-1)
+
+        return inputs
+
+    def __str__(self) -> str:
+        """
+        Return a string representation of the board.
+        """
+
+        values = self.as_list()
+
+        rows = [
+            values[i : i + self.COLUMNS] for i in range(0, len(values), self.COLUMNS)
+        ]
+
+        return "\n".join(
+            "|" + "|".join(f"{value:>2}" for value in row) + "|" for row in rows
+        )
