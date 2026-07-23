@@ -85,3 +85,10 @@ class Piece:
             "row": self.row,
             "column": self.column
         }
+    
+    def __str__(self) -> str:
+        """
+        Return a string representation of the piece.
+        """
+
+        return f"Piece(color={self.color}, row={self.row}, column={self.column})"
