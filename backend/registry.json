@@ -9,6 +9,10 @@
             "description": "Chooses the best move using the Min-Max algorithm."
         },
         {
+            "name": "Negamax",
+            "description": "Chooses the best move using the Negamax algorithm with alpha-beta pruning."
+        },
+        {
             "name": "MCTS",
             "description": "Chooses the best move using the Monte Carlo Tree Search algorithm."
         },

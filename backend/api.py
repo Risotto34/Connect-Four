@@ -10,6 +10,7 @@ from .model.Piece import Piece
 from .model.AI import AI
 from .model.ai.Random import Random
 from .model.ai.Minimax import Minimax
+from .model.ai.Negamax import Negamax
 from .model.ai.MCTS import MCTS
 from .model.ai.NeuralNetwork import NeuralNetwork
 
@@ -170,7 +171,9 @@ def choose_ai():
         case "random":
             ai = Random()
         case "minimax":
-            ai = Minimax(depth=10)
+            ai = Minimax(depth=6)
+        case "negamax":
+            ai = Negamax(depth=10)
         case "mcts":
             ai = MCTS(iterations=50000)
         case "neuralnetwork":
