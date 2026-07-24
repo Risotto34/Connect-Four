@@ -170,7 +170,7 @@ def choose_ai():
         case "random":
             ai = Random()
         case "minimax":
-            ai = Minimax(depth=6)
+            ai = Minimax(depth=10)
         case "mcts":
             ai = MCTS(iterations=50000)
         case "neuralnetwork":
